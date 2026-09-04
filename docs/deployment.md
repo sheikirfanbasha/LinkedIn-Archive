@@ -9,6 +9,25 @@
 
 Set `site.url` in `config.yaml` to match this URL (or your custom domain, below) — it's used for canonical links, the sitemap, and the RSS feed.
 
+### If your repo is a fork: `push` won't auto-deploy
+
+GitHub does not create workflow runs for `push` (or `pull_request`, or `schedule`) events on a
+repository that's a fork, even once you've enabled Actions for it and even if the repo, its
+branches, and its workflows all otherwise look fully enabled via the API (`state: active`,
+`actions/permissions` → `enabled: true`). `workflow_dispatch` — a manually-requested run — is the
+one trigger type that's exempt, and it works normally. This was confirmed directly against this
+repo: two plain `git push`es to `main` (content-only changes, matching `deploy.yml`'s path filter)
+produced zero workflow runs, while `gh workflow run deploy.yml` succeeded every time and the
+identical workflow file fires correctly on `push` in the non-fork upstream this repo was forked
+from.
+
+Until the fork is detached from its upstream (only possible by asking GitHub Support to detach
+it — there's no self-service button or API for this), publish after every merge to `main` with:
+
+```bash
+gh workflow run deploy.yml --repo <you>/<repo>
+```
+
 ## Custom domain
 
 1. Buy/own a domain (any registrar).
